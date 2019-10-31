@@ -1,0 +1,10 @@
+---
+# tasks file for clickhouse
+
+- name: Installation of Clickhouse on Ubuntu
+  import_tasks: source_debian_install_clickhouse.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Installaiton of Clickhouse on CentOS
+  import_tasks: source_redhat_install_clickhouse.yml
+  when: ansible_distribution == 'CentOS' or ansible_os_family == "RedHat" or ansible_os_family == "Amazon"

@@ -1,0 +1,24 @@
+---
+# tasks file for mysql
+
+#- name: Installation of MySQL on Ubuntu  
+#  import_tasks: mysql_install_ubuntu.yml
+#  when: ansible_distribution == 'Ubuntu'
+
+#- name: Installaiton of MySQL on CentOS
+#  import_tasks: mysql_install_redhat.yml
+#  when: ansible_distribution == 'CentOS' or ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+
+#- name: Installing MySQL-Python Dependencies
+#  import_tasks: python_dependencies.yml
+
+- name: MySQL Secure Installation
+  import_tasks: mysql_secure_installation.yml
+
+- name: Configure MySQL on Master
+  import_tasks: mysql_server_config.yml
+  when: mysql_repl_role == 'master' and master_slave_replica == 'yes'
+
+- name: Configure MySQL on Slave
+  import_tasks: mysql_slave_config.yml
+  when: master_slave_replica == 'yes'

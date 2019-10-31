@@ -1,0 +1,38 @@
+---
+
+#- command: yum install wget -y
+
+#- command: wget https://repo.mysql.com/mysql80-community-release-el7-1.noarch.rpm
+
+#- name: Downloading rpm for mysql
+#  get_url: url=https://repo.mysql.com/mysql80-community-release-el7-1.noarch.rpm dest="."
+
+
+#- name: Installing repo
+#  command: yum localinstall mysql80-community-release-el7-1.noarch.rpm -y
+
+#- name: enabled
+#  command: yum repolist enabled | grep "mysql.*-community.*"
+
+- name: Installing Mysql server
+  yum: name={{item.pkg_name}} state=latest
+  with_items: "{{ redhat_pkg_name }}"
+  tags: mysql
+
+- name: Copy master my.cnf file 
+  template: src=mysql.master.RedHat.j2 dest=/etc/my.cnf force=yes owner=root group=root
+  when: mysql_repl_role == 'master'
+
+- name: Copy slave  my.cnf file 
+  template: src=mysql.slave.RedHat.j2 dest=/etc/my.cnf force=yes owner=root group=root
+  when: mysql_repl_role == 'slave'
+
+- name: Install Mysql-python
+  pip: name=MySQL-python
+  ignore_errors: yes
+
+- name: Starting and Enabing Mysql service
+  service:
+    name: mysqld
+    state: started
+    enabled: yes

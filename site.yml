@@ -1,0 +1,13 @@
+---
+- hosts: master
+  gather_facts: yes
+  sudo: true
+  roles:
+    - { role: mysql, mysql_repl_role: master }
+
+- hosts: slave
+  gather_facts: yes
+  sudo: true
+  roles:
+    - { role: mysql, mysql_repl_role: slave }
+

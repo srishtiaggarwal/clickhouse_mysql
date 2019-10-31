@@ -1,0 +1,12 @@
+---
+- name: Installing Build-Essentials
+  apt:
+    name: build-essential
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Make sure pymysql is present
+  #become: true
+  pip:
+    name: pymysql
+    state: present

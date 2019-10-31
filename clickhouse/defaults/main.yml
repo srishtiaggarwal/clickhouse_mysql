@@ -1,0 +1,5 @@
+---
+# defaults file for clickhouse
+#
+
+clickhouse_version: "*"

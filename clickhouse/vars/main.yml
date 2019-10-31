@@ -1,0 +1,27 @@
+---
+# vars file for clickhouse
+
+apt_clickhouse_repo: "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/"
+apt_clickhouse_keyserver: keyserver.ubuntu.com
+apt_clickhouse_id: E0C56BD4
+
+apt_clickhouse:
+        #  - { pkg_name: dirmngr }
+  - { pkg_name: clickhouse-common-static }
+  - { pkg_name: clickhouse-server }
+  - { pkg_name: clickhouse-client }
+
+
+redhat_clickhouse_repo: "https://repo.yandex.ru/clickhouse/rpm/stable/x86_64/"
+redhat_clickhouse_repo_key: https://repo.yandex.ru/clickhouse/CLICKHOUSE-KEY.GPG
+redhat_clickhouse_repo_keyserver: keyserver.ubuntu.com
+
+redhat_clickhouse_package:
+  - clickhouse-client
+  - clickhouse-common-static
+  - clickhouse-server
+
+clickhouse_path_logdir: "/var/log/clickhouse-server"
+clickhouse_path_configdir: "/etc/clickhouse-server"
+clickhouse_path_tmp: "/var/lib/clickhouse/tmp/"
+clickhouse_path_data: "/var/lib/clickhouse/"

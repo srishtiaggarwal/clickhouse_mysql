@@ -1,0 +1,29 @@
+---
+
+- name: Adding server key
+  apt_key:
+    keyserver: "{{ apt_clickhouse_keyserver }}"
+    id: "{{ apt_clickhouse_id }}"
+    state: present
+
+- name: Add Clickhouse repo to source list
+  apt_repository:
+    repo: "{{ apt_clickhouse_repo }}"
+    state: present
+    filename: 'clickhouse'
+
+- name: Update system
+  apt:
+    update_cache: yes
+
+- name: Install clickhouse-server and client
+  apt:
+    name: "{{ item.pkg_name }}"
+    state: present  
+  with_items: "{{ apt_clickhouse }}"
+
+- name: Start and enable clickhouse server
+  service:
+    name: clickhouse-server.service
+    state: started
+    enabled: yes

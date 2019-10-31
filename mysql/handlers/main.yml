@@ -1,0 +1,9 @@
+---
+# handlers file for mysql
+
+- name: centos restart mysql
+  service: name=mysqld state=restarted
+
+- name: ubuntu restart mysql
+  service: name=mysql state=restarted
+

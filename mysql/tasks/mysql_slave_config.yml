@@ -1,0 +1,78 @@
+---
+- name: copy mysqldump  from local to slave
+  copy:
+    src: /tmp/masterdump.sql
+    dest: /tmp
+
+- name: centos restart mysql
+  service: name=mysqld state=restarted
+  when: ansible_distribution == 'CentOS' or ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+
+- name: ubuntu restart mysql
+  service: name=mysql state=restarted
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Mysql - Check master replication status.
+  mysql_replication: mode=getmaster
+  register: master
+  when: mysql_repl_role == 'master'
+
+- debug: var=master
+  when: mysql_repl_role == 'master'
+
+- name: "Add master return values to a dummy host"
+  add_host:
+    name:   "master_value_holder"
+    master_log_file: "{{ master.File }}"
+    master_log_pos: "{{ master.Position }}"
+  when: mysql_repl_role == 'master'
+
+  #- name: Mysql - Displaying master replication status
+  #debug: 
+  #  var: "Master Bin Log File  is {{ hostvars['master_value_holder']['master_log_file'] }} and Master Bin Log Position is {{ hostvars['master_value_holder']['master_log_pos'] }}"
+
+- name: stop MySQL on slave
+  mysql_replication:
+    mode: stopslave
+  when: mysql_repl_role == 'slave'
+
+- name: restore
+  mysql_db:
+    login_user: "root"
+    login_password: "srishti"
+    name: replication
+    state: import
+    target: /tmp/masterdump.sql
+  when: mysql_repl_role == 'slave'
+
+- name: Change the master in slave to start the replication
+  mysql_replication:
+    mode: changemaster
+    master_host: "{{ groups.master[0] }}"
+    master_log_file: "{{ hostvars['master_value_holder']['master_log_file'] }}"
+    master_log_pos: "{{ hostvars['master_value_holder']['master_log_pos'] }}"
+    master_user: "{{ mysql_repl_user[0].name }}"
+    master_password: "{{ mysql_repl_user[0].pass }}"
+  when: mysql_repl_role == 'slave'
+
+- name: centos restart mysql
+  service: name=mysqld state=restarted
+  when: ansible_distribution == 'CentOS' or ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+
+- name: ubuntu restart mysql
+  service: name=mysql state=restarted
+  when: ansible_distribution == 'Ubuntu'
+
+- name: restore
+  mysql_db:
+    login_user: "root"
+    login_password: "srishti"
+    name: replication
+    state: import
+    target: /tmp/masterdump.sql
+  when: mysql_repl_role == 'slave'
+
+- name: start MySQL slave process
+  mysql_replication:
+    mode: startslave
+  when: mysql_repl_role == 'slave'

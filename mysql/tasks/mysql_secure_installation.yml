@@ -1,0 +1,49 @@
+---
+- name: Set the root password
+  mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    state: present
+
+- name: copy .my.cnf file with root password credentials
+  template: src=.my.cnf.j2 dest=~/.my.cnf mode=0600
+
+- name: Deletes anonymous MySQL server user from database
+  mysql_user: 
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: ""
+    host_all: yes
+    state: absent
+
+- name: Secure the root user for IPV6 localhost (::1), localhost (127.0.0.1), localhost domain and server hostname domain
+  mysql_user:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    name: root
+    password: "{{ mysql_root_password }}"
+    host: "{{ item }}"
+  with_items:
+    - "::1"
+    - "127.0.0.1"
+    - "localhost"
+    - "{{ ansible_fqdn }}"
+  
+- name: Removes the MySQL test database
+  mysql_db: 
+    name: test 
+    state: absent
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: centos restart mysql
+  service: name=mysqld state=restarted
+  when: ansible_distribution == 'CentOS' or ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+ 
+- name: ubuntu restart mysql
+  service: name=mysql state=restarted
+  when: ansible_distribution == 'Ubuntu' 

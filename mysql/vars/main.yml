@@ -1,0 +1,28 @@
+---
+# vars file for mysql
+
+ubuntu_pkg_name:
+  - { pkg_name: python-pip }
+  - { pkg_name: mysql-server }
+  - { pkg_name: python-mysqldb }
+
+debian_package_Python_MySQL:
+        - { pkg_name: mysql-client }
+        - { pkg_name: mysql-common }
+        - { pkg_name: mysql-server }
+        - { pkg_name: python-mysqldb }
+        - { pkg_name: python3-dev }
+        - { pkg_name: python3-mysqldb }
+        - { pkg_name: libmysqlclient-dev }
+
+
+redhat_pkg_name:
+  - { pkg_name: mysql }
+    #  - { pkg_name: python-pip }
+  - { pkg_name: mysql-server }
+  - { pkg_name: mysql-libs }
+  - { pkg_name: gcc }
+  - { pkg_name: python-devel }
+  - { pkg_name: MySQL-python }
+    #  - { pkg_name: libselinux-python }
+  - { pkg_name: mysql-devel }

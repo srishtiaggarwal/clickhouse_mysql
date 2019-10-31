@@ -1,0 +1,60 @@
+--- 
+- name: Create "clickhouse" group
+  group:
+    name: clickhouse
+    state: present
+
+- name: Create and add the user 'clickhouse' in group
+  user:
+    name: clickhouse
+    group: clickhouse
+    state: present
+
+- name: Import clickhouse repo GPG key
+  rpm_key:
+    state: present
+    key: "{{ redhat_clickhouse_repo_key }}"
+
+- name: Add Baseurl in Clickhouse repo 
+  yum_repository:
+    name: clickhouse
+    file: clickhouse
+    description: "Clickhouse repo"
+    baseurl: "{{ redhat_clickhouse_repo }}"
+    enabled: yes
+    gpgcheck: 1
+    gpgkey: "{{ redhat_clickhouse_repo_key }}"
+
+- name: Install latest clickhouse package
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ redhat_clickhouse_package }}"
+  when: clickhouse_version == "*"
+
+- name: Install clickhouse- "{{ clickhouse_version }}" package
+  yum:
+    name: "{{ item }}-{{ clickhouse_version }}"
+    state: present
+    disable_gpg_check: yes                               # Because Package clickhouse-server-19.4.0-2.x86_64.rpm is not signed
+  with_items: "{{ redhat_clickhouse_package }}"
+  when: clickhouse_version != "*"
+
+- name: Check clickhouse config, data and logs
+  file:
+    dest: "{{ item }}"
+    owner: clickhouse
+    group: clickhouse
+    state: directory
+  with_items:
+    - "{{ clickhouse_path_logdir }}"
+    - "{{ clickhouse_path_configdir }}"
+    - "{{ clickhouse_path_tmp }}"
+    - "{{ clickhouse_path_data }}"
+  notify: restart-clickhouse
+
+- name: Start and enable the clickhouse-server
+  service: 
+    name: clickhouse-server 
+    state: started
+    enabled: yes

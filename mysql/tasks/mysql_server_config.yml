@@ -1,0 +1,41 @@
+---
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: create replicator user
+  mysql_user:
+    name: "{{ item.name }}"
+    host: "%"
+    password: "{{ item.pass }}"
+    priv: "*.*:REPLICATION SLAVE"
+    state: present
+  with_items: "{{ mysql_repl_user }}"
+
+- name: centos restart mysql
+  service: name=mysqld state=restarted
+  when: ansible_distribution == 'CentOS' or ansible_os_family == "RedHat" or ansible_os_family == "Amazon"
+
+- name: ubuntu restart mysql
+  service: name=mysql state=restarted
+  when: ansible_distribution == 'Ubuntu'
+ 
+
+- name : Dump database to hostname.sql
+  mysql_db:
+    name:  all
+    login_host: localhost
+    login_user: root
+    login_password: srishti
+    state: dump
+    target: /tmp/masterdump.sql
+
+
+- name: copy mysqldump to localhost
+  fetch:
+    src: /tmp/masterdump.sql
+    dest: /tmp/
+    flat: yes

@@ -1,0 +1,25 @@
+---
+mysql_port: 3306
+mysql_bind_address: "0.0.0.0"
+
+mysql_root_user: "root"
+mysql_root_password: "srishti"
+
+mysql_repl_user:
+  - name: replication_user
+    pass: 123
+
+ubuntu_mysql_standalone: 'false'
+centos_mysql_standalone: 'false'
+
+mysql_repl_role: master
+master_server_id: 1
+
+mysql_repl_role: slave
+slave_server_id: 2
+
+mysql_replication_master: ''
+
+master_slave_replica: 'no'
+
+db_name: mydb

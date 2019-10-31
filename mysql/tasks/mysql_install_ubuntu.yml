@@ -1,0 +1,18 @@
+---
+
+- name: Installing Mysql server
+  apt: name={{item.pkg_name}} state=present update_cache=yes
+  with_items: "{{ ubuntu_pkg_name }}"
+
+- name: Copy the my.cnf file
+  template: src=mysql.master.Debian.j2 dest=/etc/mysql/mysql.conf.d/mysqld.cnf force=yes owner=root group=root
+  when: mysql_repl_role == 'master'
+
+- name: Copy the my.cnf file
+  template: src=mysql.slave.Debian.j2 dest=/etc/mysql/mysql.conf.d/mysqld.cnf force=yes owner=root group=root
+  when: mysql_repl_role == 'slave'
+
+- name: Starting and Enabing Mysql service
+  service: name=mysql state=started enabled=yes
+
+
